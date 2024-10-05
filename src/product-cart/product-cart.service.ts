@@ -1,26 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateProductCartDto } from './dto/create-product-cart.dto';
 import { UpdateProductCartDto } from './dto/update-product-cart.dto';
+import { ProductCart } from './schema/product-cart.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { UsersService } from '../users/users.service';
+import { User } from '../users/schema/user.entity';
+import { Product } from '../products/schema/product.entity';
+
 
 @Injectable()
 export class ProductCartService {
-  create(createProductCartDto: CreateProductCartDto) {
-    return 'This action adds a new productCart';
+  constructor(
+    @InjectModel(ProductCart.name)
+    private readonly productCartModel: Model<ProductCart>,
+    private readonly userServices: UsersService,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<Product>
+  ) {}
+
+  private async verifyIfProductsExist(updateProductCartDto: UpdateProductCartDto) {
+    const products = updateProductCartDto.products || [];
+
+    for (const productId of products) {
+      const productExist = await this.productModel.exists({ _id: productId });
+      if (!productExist) {
+        throw new BadRequestException(`Product with ID ${productId} does not exist`);
+      }
+    }
   }
 
-  findAll() {
-    return `This action returns all productCart`;
+  private verifyIfUserExists(user: User) {
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productCart`;
+  private verifyIfProductCartExists(productCart: ProductCart) {
+    if (!productCart) {
+      throw new NotFoundException('Product cart not found');
+    }
+
+    return productCart; 
   }
 
-  update(id: number, updateProductCartDto: UpdateProductCartDto) {
-    return `This action updates a #${id} productCart`;
+  async create(createProductCartDto: CreateProductCartDto): Promise<ProductCart> {
+    const userFound = await this.userServices.findById(createProductCartDto.userId);
+    this.verifyIfUserExists(userFound);
+    return await this.productCartModel.create(createProductCartDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productCart`;
+  async findById(_id: string): Promise<ProductCart> {
+    const productCart = await this.productCartModel.findById(_id).populate('products').exec();
+    return this.verifyIfProductCartExists(productCart);
+  }
+
+  async updateProduct(id: string, updateProductCartDto: UpdateProductCartDto): Promise<ProductCart> {
+    await this.verifyIfProductsExist(updateProductCartDto);
+
+    const updatedCart = await this.productCartModel
+      .findByIdAndUpdate(id, updateProductCartDto, { new: true })
+      .exec();
+
+    this.verifyIfProductCartExists(updatedCart);
+    return updatedCart;
+  }
+
+  async findAllP(){
+    return await this.productCartModel.find().populate('products').exec();
+  }
+
+  async findAll() {
+    return await this.productCartModel.find().exec();
   }
 }

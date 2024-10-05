@@ -5,12 +5,13 @@ import { ProductCartModule } from './product-cart/product-cart.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
     }),
 
     MongooseModule.forRootAsync({
@@ -22,16 +23,14 @@ import { TransactionModule } from './transaction/transaction.module';
     }),
 
     ProductCartModule,
-
     UsersModule,
-
     ProductsModule,
-
     TransactionModule,
+    AuthModule,
 
   ],
   controllers: [],
   providers: [
   ],
 })
-export class AppModule {}
+export class AppModule { }
