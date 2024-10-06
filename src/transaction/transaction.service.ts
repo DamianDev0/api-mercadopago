@@ -21,7 +21,7 @@ export class TransactionService {
     private readonly productModel: Model<Product>,
   ) {
     this.client = new MercadoPagoConfig({
-      accessToken: 'APP_USR-950173676233368-100415-73dfcf0d1835b7358c4a6bd49455da0c-321121390',
+      accessToken: 'APP_USR-290537081224332-100420-3609fbd0d203267bf674f3b2082a8f08-2019328425',
       options: { timeout: 5000 },
     });
   }
@@ -86,9 +86,9 @@ export class TransactionService {
   private createTransactionModel(userId: string, productCartId: string ,products_id: Object[], totalAmount: number, preferenceId: string){
     const transaction = new this.transactionModel({
       userId,
-      productCartId: productCartId,
+      productCartId,
       quantity: products_id.length,
-      totalamount: totalAmount,
+      totalAmount: totalAmount,
       mercadoPagoId: preferenceId,
       preferenceId,
     });

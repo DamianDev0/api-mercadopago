@@ -17,7 +17,8 @@ export class TransactionController {
       message: 'Transaction created successfully',
       preferenceId: result.id,  
       init_point: result.init_point, 
-      sandbox_init_point: result.sandbox_init_point,  
+      sandbox_init_point: result.sandbox_init_point,
+        
     };
   }
 
