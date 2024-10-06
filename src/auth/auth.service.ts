@@ -36,7 +36,7 @@ export class AuthService {
     }
     const accessToken = this.generateToken(findUser);
     return {
-      accessToken: accessToken
+      accessToken
     };
   }
 
